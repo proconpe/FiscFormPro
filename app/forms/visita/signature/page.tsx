@@ -72,6 +72,7 @@ export default function InfracaoSignature() {
   const [fiscais, setFiscais] = useState<Fiscal[]>([
     { nome: "", matricula: "", assinatura: "" },
   ]);
+  console.log(responsavelSignature)
 
   // Função para adicionar um novo fiscal
   const adicionarFiscal = () => {
@@ -197,6 +198,7 @@ export default function InfracaoSignature() {
                 </Form>
                 <SignaturePad onSave={setResponsavelSignature} />
               </div>
+              
             </div>
           </CardContent>
 
@@ -323,6 +325,7 @@ export default function InfracaoSignature() {
               Concluir e Voltar ao Início
             </Button>
           </div>
+          
         </div>
       )}
     </div>

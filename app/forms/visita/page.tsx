@@ -197,7 +197,7 @@ export default function InfracaoForm() {
 
                   <FormField
                     control={form.control}
-                    name="minicipio"
+                    name="municipio"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Municipio</FormLabel>

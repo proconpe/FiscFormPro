@@ -32,7 +32,7 @@ export const RelatorioVisitaSchema = z.object({
     .min(2, {
       message: "endereço deve conter no minimo 2 caracteres",
     }),
-  minicipio: z
+  municipio: z
     .string({
       message: "Campo obrigatorio",
     })
