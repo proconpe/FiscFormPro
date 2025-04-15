@@ -29,6 +29,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { assinaturaResponsavelSchema } from "@/lib/schemas";
+import { generatePDF } from "@/lib/pdf-generator";
 
 // Interface para os dados do fiscal
 interface Fiscal {
@@ -44,6 +45,14 @@ export default function InfracaoSignature() {
     resolver: zodResolver(assinaturaResponsavelSchema),
   });
 
+  const gerarPdf = ()=> {
+    generatePDF({
+      ...formData,
+      responsavelSignature:assinaturaResponsavelSchema,
+      fiscais
+    })
+  }
+
   // Em um cenário real, você recuperaria os dados do formulário do backend
   // Aqui estamos simulando com dados de exemplo
   const formData = {
@@ -54,6 +63,7 @@ export default function InfracaoSignature() {
     cidade: searchParams.get("cidade") || "Cidade Exemplo",
     estado: searchParams.get("estado") || "UF",
     cep: searchParams.get("cep") || "12345-678",
+    ocorrencias:searchParams.get("ocorrencias") || "nada",
     tipoInfracao: searchParams.get("tipoInfracao") || "Fiscalização Regular",
     descricaoInfracao:
       searchParams.get("descricaoInfracao") ||
@@ -299,11 +309,11 @@ export default function InfracaoSignature() {
               Voltar
             </Button>
             <Button
-              onClick={handleNext}
+              onClick={gerarPdf}
               disabled={!fiscaisCompletos}
               className="flex items-center gap-1"
             >
-              Visualizar Documento <ArrowRight className="h-4 w-4" />
+              Baixar documento <ArrowRight className="h-4 w-4" />
             </Button>
           </CardFooter>
         </Card>
