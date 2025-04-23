@@ -32,11 +32,7 @@ import { assinaturaResponsavelSchema } from "@/lib/schemas";
 import { generatePDF } from "@/lib/pdf-generator";
 
 // Interface para os dados do fiscal
-interface Fiscal {
-  nome: string;
-  matricula: string;
-  assinatura: string;
-}
+
 
 export default function InfracaoSignature() {
   const router = useRouter();
@@ -45,13 +41,29 @@ export default function InfracaoSignature() {
     resolver: zodResolver(assinaturaResponsavelSchema),
   });
 
-  const gerarPdf = ()=> {
-    generatePDF({
-      ...formData,
-      responsavelSignature:assinaturaResponsavelSchema,
-      fiscais
-    })
-  }
+  const gerarPdf = async () => {
+    console.log("Baixando");
+    const res = await generatePDF({
+      atividade: formData.atividade,
+      cep: formData.cep,
+      cnpj: formData.cnpj,
+      endereco: formData.endereco,
+      estado: formData.estado,
+      inscricaoEstadual: formData.inscricaoEstadual,
+      municipio: formData.cidade,
+      nomeFantasia: formData.nomeFantasia,
+      ocorrencias: formData.ocorrencias,
+      razaoSocial: formData.razaoSocial,
+      responsavel: {
+        nome: responsavelNome,
+        cargo: responsavelCargo,
+        cpf: responsavelCpf,
+      },
+      responsavelSignature: responsavelSignature,
+      fiscais: fiscais,
+    });
+    console.log("linkdoPdh",res.path);
+  };
 
   // Em um cenário real, você recuperaria os dados do formulário do backend
   // Aqui estamos simulando com dados de exemplo
@@ -61,9 +73,13 @@ export default function InfracaoSignature() {
     endereco: searchParams.get("endereco") || "Rua Exemplo, 123",
     bairro: searchParams.get("bairro") || "Centro",
     cidade: searchParams.get("cidade") || "Cidade Exemplo",
+    atividade: searchParams.get("atividade") || "Undefined",
+    nomeFantasia: searchParams.get("nomeFantasia") || "Undefined",
+    tipoVisita: searchParams.get("tipoVisita") || "Undefined",
     estado: searchParams.get("estado") || "UF",
+    inscricaoEstadual: searchParams.get("inscricaoEstadual") || "000000000000",
     cep: searchParams.get("cep") || "12345-678",
-    ocorrencias:searchParams.get("ocorrencias") || "nada",
+    ocorrencias: searchParams.get("ocorrencias") || "nada",
     tipoInfracao: searchParams.get("tipoInfracao") || "Fiscalização Regular",
     descricaoInfracao:
       searchParams.get("descricaoInfracao") ||
@@ -76,13 +92,14 @@ export default function InfracaoSignature() {
   const [step, setStep] = useState(1);
   const [responsavelNome, setResponsavelNome] = useState("sdfsd");
   const [responsavelCargo, setResponsavelCargo] = useState("sdfsfsdf");
+  const [responsavelCpf, setResponsavelCpf] = useState("sdfsfsdf");
   const [responsavelSignature, setResponsavelSignature] = useState("");
 
   // Array de fiscais
   const [fiscais, setFiscais] = useState<Fiscal[]>([
     { nome: "", matricula: "", assinatura: "" },
   ]);
-  console.log(responsavelSignature)
+  console.log(responsavelSignature);
 
   // Função para adicionar um novo fiscal
   const adicionarFiscal = () => {
@@ -169,7 +186,12 @@ export default function InfracaoSignature() {
                         <FormItem>
                           <FormLabel>Nome</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input
+                              {...field}
+                              onChange={(e) =>
+                                setResponsavelNome(e.target.value)
+                              }
+                            />
                           </FormControl>
 
                           <FormMessage />
@@ -183,7 +205,12 @@ export default function InfracaoSignature() {
                         <FormItem>
                           <FormLabel>Cpf</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input
+                              {...field}
+                              onChange={(e) =>
+                                setResponsavelCpf(e.target.value)
+                              }
+                            />
                           </FormControl>
 
                           <FormMessage />
@@ -197,7 +224,12 @@ export default function InfracaoSignature() {
                         <FormItem>
                           <FormLabel>Cargo</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <Input
+                              {...field}
+                              onChange={(e) =>
+                                setResponsavelCargo(e.target.value)
+                              }
+                            />
                           </FormControl>
 
                           <FormMessage />
@@ -208,7 +240,6 @@ export default function InfracaoSignature() {
                 </Form>
                 <SignaturePad onSave={setResponsavelSignature} />
               </div>
-              
             </div>
           </CardContent>
 
@@ -317,26 +348,6 @@ export default function InfracaoSignature() {
             </Button>
           </CardFooter>
         </Card>
-      )}
-
-      {step === 3 && (
-        <div className="max-w-5xl mx-auto">
-          <DocumentPreview
-            formType="infracao"
-            formData={completeFormData}
-            signatureDataUrl={responsavelSignature}
-            fiscais={fiscais}
-          />
-          <div className="flex justify-center mt-6">
-            <Button
-              onClick={() => router.push("/")}
-              className="flex items-center gap-1"
-            >
-              Concluir e Voltar ao Início
-            </Button>
-          </div>
-          
-        </div>
       )}
     </div>
   );

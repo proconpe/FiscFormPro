@@ -63,7 +63,8 @@ export const RelatorioVisitaSchema = z.object({
   inscricaoEstadual: z
     .string({
       message: "Campo obrigatorio",
-    }).optional(),  
+    })
+    .optional(),
   tipoVisita: z
     .string({
       message: "Campo obrigatorio",
@@ -79,6 +80,118 @@ export const RelatorioVisitaSchema = z.object({
       message: " ocorrencias deve contar no minimo 2 catacters",
     }),
 });
+
+export const AutoDeNotificaçãoShema = z.object({
+  razaoSocial: z.string({
+    message: "Campo obrigatorio",
+  }),
+  nomeFantasia: z.string({
+    message: "Campo obrigatorio",
+  }),
+  atividade: z.string({
+    message: "Campo obrigatorio",
+  }),
+  endereco: z.string({
+    message: "Campo obrigatorio",
+  }),
+  municipio: z.string({
+    message: "Campo obrigatorio",
+  }),
+  estado: z.string({
+    message: "Campo obrigatorio",
+  }),
+  telefone: z.string({
+    message: "Telefone e campo obrigatório",
+  }),
+  celular: z.string({
+    message: "Celular e campo obrigatório",
+  }),
+  email: z
+    .string({
+      message: "Email e campo obrigatório",
+    })
+    .email({
+      message: "Email inválido",
+    }),
+
+  inscricaoEstadual: z
+    .string({
+      message: "Campo obrigatorio",
+    })
+    .optional(),
+  ocorrencias: z.string({
+    message: "Campo obrigatorio",
+  }),
+  dispositivosLegaisInfrigidos: z.string({
+    message: "Campo obrigatorio",
+  }),
+  cep: z
+    .string({
+      message: "Campo obrigatorio",
+    })
+    .regex(/^\d{5}-\d{3}$/, "CEP inválido")
+    .transform((cep) => formatCEP(cep)),
+  cnpj: z
+    .string({
+      message: "Cnpj e um campo obrigatório",
+    })
+    .transform((cnpj) => formatCNPJ(cnpj))
+    .refine((cnpj) => isValidCNPJ(cnpj), {
+      message: "Cnpj invalido",
+    }),
+});
+
+export const AutoDeConstataçãoSchema = z.object({ 
+  razaoSocial: z.string({
+    message: "Campo obrigatorio",
+  }),
+  nomeFantasia: z.string({
+    message: "Campo obrigatorio",
+  }),
+  atividade: z.string({
+    message: "Campo obrigatorio",
+  }),
+  endereco: z.string({
+    message: "Campo obrigatorio",
+  }),
+  municipio: z.string({
+    message: "Campo obrigatorio",
+  }),
+  estado: z.string({
+    message: "Campo obrigatorio",
+  }),
+  cep: z
+    .string({
+      message: "Campo obrigatorio",
+    })
+    .regex(/^\d{5}-\d{3}$/, "CEP inválido")
+    .transform((cep) => formatCEP(cep)),
+  cnpj: z
+    .string({
+      message: "Cnpj e um campo obrigatório",
+    })
+    .transform((cnpj) => formatCNPJ(cnpj))
+    .refine((cnpj) => isValidCNPJ(cnpj), {
+      message: "Cnpj invalido",
+    }),
+    telefone: z.string({
+    message: "Telefone e campo obrigatório",
+  }).optional(),
+  celular: z.string({
+    message: "Celular e campo obrigatório",
+  }).optional(),
+  inscricaoEstadual: z
+    .string({
+      message: "Campo obrigatorio",
+    })
+    .optional(),
+    ocorrencias: z.string({
+    message: "Campo obrigatorio",
+  }),
+  dispositivosLegaisInfrigidos: z.string({
+    message: "Campo obrigatorio",
+  }).optional(),
+})
 
 export const assinaturaResponsavelSchema = z.object({
   nome: z

@@ -9,6 +9,112 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model Anexos {
+  id        String   @id @default(cuid())
+  nome      String
+  tipo      String
+  url       String
+  createdAt DateTime @default(now())
+
+  RelatorioVisitaId String?
+  autoDeInfracao    RelatorioVisita? @relation(fields: [RelatorioVisitaId], references: [id])
+  autoDeNotificacaoId String?
+  autoDeNotificacao   AutoDeNotificacao? @relation(fields: [autoDeNotificacaoId], references: [id])
+  autoDeConstatacaoId String?
+  autoDeConstatacao   AutoDeConstatação? @relation(fields: [autoDeConstatacaoId], references: [id])
+}
+
+model Documento {
+  id       String @id @default(cuid())
+  sharedId String // doc-001/2025
+
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  AutoDeNotificacao   AutoDeNotificacao?
+  AutoDeConstatação AutoDeConstatação?
+  RelatorioVisita     RelatorioVisita?
+}
+
+model AutoDeNotificacao {
+  id          String @id @default(cuid())
+  formId      String @unique // ex: infra-001/2025
+  pdfUrl      String?
+  documentoId String @unique // ex: doc-001/2025
+
+  razaoSocial  String
+  nomeFantasia String
+  atividade    String
+  endereco     String
+  municipio    String
+  estado       String
+  cep          String
+
+  telefone                     String?
+  celular                      String?
+  cnpj                         String
+  email                        String
+  inscricaoEstadual            String?
+  ocorrencias                  String
+  dispositivosLegaisInfrigidos String?
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime @updatedAt
+
+  documento Documento @relation(fields: [documentoId], references: [id])
+  Anexos    Anexos[]
+}
+
+model AutoDeConstatação {
+  id                           String @id @default(cuid())
+  formId                       String   @unique // ex: infra-001/2025
+  pdfUrl                       String?
+  documentoId                  String   @unique // ex: doc-001/2025
+  nomeFantasia                 String
+  razaoSocial                  String
+  atividade                    String
+  endereco                     String
+  municipio                    String
+  estado                       String
+  telefone                     String?
+  celular                      String?
+  inscricaoEstadual            String?
+  ocorrencias                  String
+  dispositivosLegaisInfrigidos String?
+  cep                          String
+  cnpj                         String
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime @updatedAt
+
+  documento Documento @relation(fields: [documentoId], references: [id])
+  Anexos    Anexos[]
+}
+
+model RelatorioVisita {
+  id                String @id @default(cuid())
+  formId            String  @unique // ex: infra-001/2025
+  pdfUrl            String?
+  documentoId       String  @unique // ex: doc-001/2025
+  nomeFantasia      String
+  razaoSocial       String
+  atividade         String
+  endereco          String
+  municipio         String
+  estado            String
+  telefone          String?
+  celular           String?
+  email             String
+  tipoVisita        String
+  inscricaoEstadual String?
+  ocorrencias       String
+
+  cep       String
+  cnpj      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  documento Documento @relation(fields: [documentoId], references: [id])
+  Anexos    Anexos[]
 }
