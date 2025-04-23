@@ -62,7 +62,7 @@ export default function InfracaoSignature() {
       responsavelSignature: responsavelSignature,
       fiscais: fiscais,
     });
-    console.log("linkdoPdh",res.path);
+    // console.log("linkdoPdh",res.path);
   };
 
   // Em um cenário real, você recuperaria os dados do formulário do backend
