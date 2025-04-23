@@ -3,6 +3,7 @@ import jsPDF from "jspdf";
 import proconLogo from "../public/logo.png";
 import governoLogo from "../public/governope.png";
 import { add } from "date-fns";
+import { salvarDocumento } from "./actions/save-file";
 
 async function getBase64FromUrl(url: string) {
   const res = await fetch(url);
@@ -440,11 +441,19 @@ export const generatePDF = async (data: RelatorioDeVisita) => {
 
   // Adicionar rodapé na última página
   addFooter();
+  const pdfBlob = pdf.output('blob')
+  const base64 = await blobToBase64(pdfBlob)
+  const filename = `Relatorio_de_Visita_${data.razaoSocial.replace(/\s+/g, "_")}`
+  
+  const res = await salvarDocumento(base64.split(",")[1], filename, "pdf")
 
-  // Salvar o PDF
-  pdf.save(
-    `Relatório_de_Visita_${data.razaoSocial.replace(/\s+/g, "_")}_${
-      new Date().toISOString().split("T")[0]
-    }.pdf`
-  );
+  function blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onloadend = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsDataURL(blob)
+    })
+  }
+
 };
