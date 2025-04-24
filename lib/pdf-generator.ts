@@ -84,7 +84,7 @@ export const generatePDF = async (data: RelatorioDeVisita) => {
   let currentPage = 1;
 
   // Função para verificar se precisa de nova página
-  const checkNewPage = (heightNeeded) => {
+  const checkNewPage = (heightNeeded:number) => {
     if (yPosition + heightNeeded > pageHeight - margin - footerHeight) {
       addFooter();
       pdf.addPage();
@@ -118,7 +118,7 @@ export const generatePDF = async (data: RelatorioDeVisita) => {
   };
 
   // Função para adicionar campo dividido
-  const addSplitField = (fields) => {
+  const addSplitField = (fields:{title:string, value:string}[]) => {
     const totalFields = fields.length;
     const fieldWidth = contentWidth / totalFields;
     const height = 10;
@@ -446,6 +446,8 @@ export const generatePDF = async (data: RelatorioDeVisita) => {
   const filename = `Relatorio_de_Visita_${data.razaoSocial.replace(/\s+/g, "_")}`
   
   const res = await salvarDocumento(base64.split(",")[1], filename, "pdf")
+
+  return res
 
   function blobToBase64(blob: Blob): Promise<string> {
     return new Promise((resolve, reject) => {

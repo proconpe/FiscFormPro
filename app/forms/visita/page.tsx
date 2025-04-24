@@ -44,25 +44,26 @@ import { formatCNPJ } from "@/lib/masks/cnpj-format";
 import FullScreenButton from "@/components/full-screen-button";
 import { useBuscarCep } from "@/hooks/use-busca-cep";
 import { useTransition } from "react";
+import { createRelatorio } from "@/lib/actions/form/relatorioVisita.actions";
 
 export default function InfracaoForm() {
   const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
   const [isLoading, startTransition] = useTransition();
 
-
   const form = useForm<z.infer<typeof RelatorioVisitaSchema>>({
     resolver: zodResolver(RelatorioVisitaSchema),
   });
   useBuscarCep(form, startTransition);
 
-  const onFormSubmit = (data: z.infer<typeof RelatorioVisitaSchema>) => {
-    const queryParams = new URLSearchParams();
-    Object.entries(data).forEach(([key, value]) => {
-      queryParams.append(key, value);
-    });
+  const onFormSubmit = async (data: z.infer<typeof RelatorioVisitaSchema>) => {
+    const response = await createRelatorio(data);
 
-    router.push(`/forms/visita/signature?${queryParams.toString()}`);
+    if (response.success) {
+      router.push(`/forms/visita/signature?id=${response.data?.id}`);
+    } else {
+      console.log(response.error);
+    }
   };
 
   return (
@@ -165,6 +166,20 @@ export default function InfracaoForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Atividade</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>

@@ -4,13 +4,10 @@ import { formatCNPJ } from "./masks/cnpj-format";
 import { formatCEP } from "./masks/cep-format";
 
 export const RelatorioVisitaSchema = z.object({
-  razaoSocial: z
-    .string({
-      message: " Campo obrigatorio",
-    })
-    .min(2, {
-      message: "rezão deve conter no minimo 2 caracteres",
-    }),
+  razaoSocial: z.string({
+    message: " Campo obrigatorio",
+  }),
+  email: z.string().email({ message: "Email inválido" }),
   nomeFantasia: z
     .string({
       message: "Campo obrigatorio",
@@ -141,7 +138,7 @@ export const AutoDeNotificaçãoShema = z.object({
     }),
 });
 
-export const AutoDeConstataçãoSchema = z.object({ 
+export const AutoDeConstataçãoSchema = z.object({
   razaoSocial: z.string({
     message: "Campo obrigatorio",
   }),
@@ -174,24 +171,30 @@ export const AutoDeConstataçãoSchema = z.object({
     .refine((cnpj) => isValidCNPJ(cnpj), {
       message: "Cnpj invalido",
     }),
-    telefone: z.string({
-    message: "Telefone e campo obrigatório",
-  }).optional(),
-  celular: z.string({
-    message: "Celular e campo obrigatório",
-  }).optional(),
+  telefone: z
+    .string({
+      message: "Telefone e campo obrigatório",
+    })
+    .optional(),
+  celular: z
+    .string({
+      message: "Celular e campo obrigatório",
+    })
+    .optional(),
   inscricaoEstadual: z
     .string({
       message: "Campo obrigatorio",
     })
     .optional(),
-    ocorrencias: z.string({
+  ocorrencias: z.string({
     message: "Campo obrigatorio",
   }),
-  dispositivosLegaisInfrigidos: z.string({
-    message: "Campo obrigatorio",
-  }).optional(),
-})
+  dispositivosLegaisInfrigidos: z
+    .string({
+      message: "Campo obrigatorio",
+    })
+    .optional(),
+});
 
 export const assinaturaResponsavelSchema = z.object({
   nome: z
@@ -211,6 +214,23 @@ export const assinaturaResponsavelSchema = z.object({
   cargo: z
     .string({
       message: "Campo obrigatorio",
+    })
+    .min(2, {
+      message: "Deve conter no minimo 2 caracteres",
+    }),
+});
+
+export const assinaturaFiscalSchema = z.object({
+  nome: z
+    .string({
+      message: "Nome e obrigatoria",
+    })
+    .min(2, {
+      message: "Deve conter no minimo 2 caracteres",
+    }),
+  matricula: z
+    .string({
+      message: "Matricula e obrigatoria",
     })
     .min(2, {
       message: "Deve conter no minimo 2 caracteres",

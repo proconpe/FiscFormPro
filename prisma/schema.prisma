@@ -20,10 +20,10 @@ model Anexos {
   url       String
   createdAt DateTime @default(now())
 
-  RelatorioVisitaId String?
-  autoDeInfracao    RelatorioVisita? @relation(fields: [RelatorioVisitaId], references: [id])
+  RelatorioVisitaId   String?
+  autoDeInfracao      RelatorioVisita?     @relation(fields: [RelatorioVisitaId], references: [id])
   autoDeNotificacaoId String?
-  autoDeNotificacao   AutoDeNotificacao? @relation(fields: [autoDeNotificacaoId], references: [id])
+  autoDeNotificacao   AutoDeNotificacao?   @relation(fields: [autoDeNotificacaoId], references: [id])
   autoDeConstatacaoId String?
   autoDeConstatacao   AutoDeConstatação? @relation(fields: [autoDeConstatacaoId], references: [id])
 }
@@ -40,10 +40,10 @@ model Documento {
 }
 
 model AutoDeNotificacao {
-  id          String @id @default(cuid())
-  formId      String @unique // ex: infra-001/2025
+  id          String  @id @default(cuid())
+  formId      String  @unique // ex: infra-001/2025
   pdfUrl      String?
-  documentoId String @unique // ex: doc-001/2025
+  documentoId String  @unique // ex: doc-001/2025
 
   razaoSocial  String
   nomeFantasia String
@@ -60,15 +60,16 @@ model AutoDeNotificacao {
   inscricaoEstadual            String?
   ocorrencias                  String
   dispositivosLegaisInfrigidos String?
-  createdAt                    DateTime @default(now())
-  updatedAt                    DateTime @updatedAt
-
-  documento Documento @relation(fields: [documentoId], references: [id])
-  Anexos    Anexos[]
+  createdAt                    DateTime  @default(now())
+  updatedAt                    DateTime  @updatedAt
+  fiscais                      Json?
+  responsavel                  Json?
+  documento                    Documento @relation(fields: [documentoId], references: [id])
+  Anexos                       Anexos[]
 }
 
 model AutoDeConstatação {
-  id                           String @id @default(cuid())
+  id                           String   @id @default(cuid())
   formId                       String   @unique // ex: infra-001/2025
   pdfUrl                       String?
   documentoId                  String   @unique // ex: doc-001/2025
@@ -87,16 +88,19 @@ model AutoDeConstatação {
   cnpj                         String
   createdAt                    DateTime @default(now())
   updatedAt                    DateTime @updatedAt
+  fiscais                      Json?
+  responsavel                  Json?
 
   documento Documento @relation(fields: [documentoId], references: [id])
   Anexos    Anexos[]
 }
 
 model RelatorioVisita {
-  id                String @id @default(cuid())
-  formId            String  @unique // ex: infra-001/2025
+  id     String @id @default(cuid())
+  formId String @unique // ex: infra-001/2025
+
   pdfUrl            String?
-  documentoId       String  @unique // ex: doc-001/2025
+  documentoId       String   @unique // ex: doc-001/2025
   nomeFantasia      String
   razaoSocial       String
   atividade         String
@@ -109,11 +113,13 @@ model RelatorioVisita {
   tipoVisita        String
   inscricaoEstadual String?
   ocorrencias       String
+  cep               String
+  cnpj              String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
-  cep       String
-  cnpj      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  fiscais     Json?
+  responsavel Json?
 
   documento Documento @relation(fields: [documentoId], references: [id])
   Anexos    Anexos[]

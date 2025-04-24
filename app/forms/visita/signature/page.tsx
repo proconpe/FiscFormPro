@@ -14,7 +14,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SignaturePad } from "@/components/signature-pad";
-import { DocumentPreview } from "@/components/document-preview";
 import { ArrowLeft, ArrowRight, Plus, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import {
@@ -30,6 +29,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { assinaturaResponsavelSchema } from "@/lib/schemas";
 import { generatePDF } from "@/lib/pdf-generator";
+import { Fiscal } from "@/@types";
 
 // Interface para os dados do fiscal
 
@@ -42,7 +42,6 @@ export default function InfracaoSignature() {
   });
 
   const gerarPdf = async () => {
-    console.log("Baixando");
     const res = await generatePDF({
       atividade: formData.atividade,
       cep: formData.cep,
@@ -62,7 +61,7 @@ export default function InfracaoSignature() {
       responsavelSignature: responsavelSignature,
       fiscais: fiscais,
     });
-    // console.log("linkdoPdh",res.path);
+    console.log("linkdoPdh",res.path);
   };
 
   // Em um cenário real, você recuperaria os dados do formulário do backend
@@ -99,7 +98,7 @@ export default function InfracaoSignature() {
   const [fiscais, setFiscais] = useState<Fiscal[]>([
     { nome: "", matricula: "", assinatura: "" },
   ]);
-  console.log(responsavelSignature);
+
 
   // Função para adicionar um novo fiscal
   const adicionarFiscal = () => {
