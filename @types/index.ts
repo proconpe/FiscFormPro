@@ -1,14 +1,9 @@
-export type RelatorioDeVisita = {
-  atividade: string;
-  cep: string;
-  cnpj: string;
-  endereco: string;
-  estado: string;
-  inscricaoEstadual: string;
-  municipio: string;
-  nomeFantasia: string;
-  ocorrencias: string;
-  razaoSocial: string;
+import { RelatorioVisitaSchema } from "@/lib/schemas";
+import { z } from "zod";
+
+export type RelatorioDeVisita = z.infer<typeof RelatorioVisitaSchema> & {
+  formId: string;
+  documentoId: string;
   responsavel: {
     nome: string;
     cargo: string;
@@ -16,10 +11,11 @@ export type RelatorioDeVisita = {
   };
   responsavelSignature: string;
   fiscais: Fiscal[]; // ou outro tipo, dependendo do que é `fiscais`
-};
+}
 
 export interface Fiscal {
   nome: string;
   matricula: string;
   assinatura: string;
 }
+

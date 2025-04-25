@@ -30,7 +30,7 @@ model Anexos {
 
 model Documento {
   id       String @id @default(cuid())
-  sharedId String // doc-001/2025
+  sharedId String @unique // doc-001/2025
 
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
@@ -43,7 +43,7 @@ model AutoDeNotificacao {
   id          String  @id @default(cuid())
   formId      String  @unique // ex: infra-001/2025
   pdfUrl      String?
-  documentoId String  @unique // ex: doc-001/2025
+  documentoId String @unique// ex: doc-001/2025
 
   razaoSocial  String
   nomeFantasia String
@@ -64,7 +64,7 @@ model AutoDeNotificacao {
   updatedAt                    DateTime  @updatedAt
   fiscais                      Json?
   responsavel                  Json?
-  documento                    Documento @relation(fields: [documentoId], references: [id])
+  documento                    Documento @relation(fields: [documentoId], references: [sharedId])
   Anexos                       Anexos[]
 }
 
@@ -91,7 +91,7 @@ model AutoDeConstatação {
   fiscais                      Json?
   responsavel                  Json?
 
-  documento Documento @relation(fields: [documentoId], references: [id])
+  documento Documento @relation(fields: [documentoId], references: [sharedId])
   Anexos    Anexos[]
 }
 
@@ -121,6 +121,60 @@ model RelatorioVisita {
   fiscais     Json?
   responsavel Json?
 
-  documento Documento @relation(fields: [documentoId], references: [id])
+  documento Documento @relation(fields: [documentoId], references: [sharedId])
   Anexos    Anexos[]
+}
+
+model Empresas {
+  id                 String   @id @default(cuid())
+  cnpj               String   @unique
+  nomeFantasia       String
+  inscricaoMunicipal String?
+  situacaoCadastral  String // a situação e ativo ou inativo  so que pode ter muito mais ver com anselmo quais as situações
+  fornecedor         String
+  email              String   @unique
+  cpf                String?
+  atividade          String
+  telefone           String
+  updatedAt          DateTime @updatedAt
+  createdAt          DateTime @default(now())
+  endereco           Json
+}
+
+model Consumidores {
+  id           String   @id @default(cuid())
+  nomeCompleto String
+  cpf          String   @unique
+  email        String   @unique
+  telefone     String
+  nota         String?
+  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  endereco     Json
+}
+
+model Fiscais {
+  id           String   @id @default(cuid())
+  nomeCompleto String
+  cpf          String   @unique
+  email        String   @unique
+  matricula    String
+  telefone     String
+  nota         String?
+  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  endereco     Json?
+}
+
+model Assessores {
+  id           String   @id @default(cuid())
+  nomeCompleto String
+  cpf          String   @unique
+  email        String   @unique
+  matricula    String
+  telefone     String
+  nota         String?
+  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  endereco     Json?
 }

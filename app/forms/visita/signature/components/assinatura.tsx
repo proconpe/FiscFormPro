@@ -27,78 +27,81 @@ import {
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { assinaturaResponsavelSchema } from "@/lib/schemas";
+import {
+  assinaturaResponsavelSchema,
+  RelatorioVisitaSchema,
+} from "@/lib/schemas";
 import { generatePDF } from "@/lib/pdf-generator";
 import { Fiscal } from "@/@types";
+import updateRelatorio from "@/lib/actions/form/relatorioVisita.actions";
+import { RelatorioVisita } from "@prisma/client";
+import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 // Interface para os dados do fiscal
 
-
-export default function InfracaoSignature() {
+export default function VisitaSignature({
+  id,
+  data,
+}: {
+  id: string;
+  data: RelatorioVisita;
+}) {
   const router = useRouter();
-  const searchParams = useSearchParams();
+
+  console.log(data);
   const form = useForm<z.infer<typeof assinaturaResponsavelSchema>>({
     resolver: zodResolver(assinaturaResponsavelSchema),
   });
 
   const gerarPdf = async () => {
+    const responsavel = {
+      nome: responsavelNome,
+      cargo: responsavelCargo,
+      cpf: responsavelCpf,
+    };
+
     const res = await generatePDF({
-      atividade: formData.atividade,
-      cep: formData.cep,
-      cnpj: formData.cnpj,
-      endereco: formData.endereco,
-      estado: formData.estado,
-      inscricaoEstadual: formData.inscricaoEstadual,
-      municipio: formData.cidade,
-      nomeFantasia: formData.nomeFantasia,
-      ocorrencias: formData.ocorrencias,
-      razaoSocial: formData.razaoSocial,
-      responsavel: {
-        nome: responsavelNome,
-        cargo: responsavelCargo,
-        cpf: responsavelCpf,
-      },
+      atividade: data.atividade,
+      cep: data.cep,
+      cnpj: data.cnpj,
+      endereco: data.endereco,
+      estado: data.estado,
+      inscricaoEstadual: data.inscricaoEstadual || "",
+      municipio: data.municipio,
+      nomeFantasia: data.nomeFantasia,
+      ocorrencias: data.ocorrencias,
+      razaoSocial: data.razaoSocial,
+      tipoVisita: data.tipoVisita,
+      documentoId: data.documentoId,
+      formId: data.formId,
+      email: data.email,
+      responsavel,
       responsavelSignature: responsavelSignature,
       fiscais: fiscais,
     });
-    console.log("linkdoPdh",res.path);
-  };
 
-  // Em um cenário real, você recuperaria os dados do formulário do backend
-  // Aqui estamos simulando com dados de exemplo
-  const formData = {
-    razaoSocial: searchParams.get("razaoSocial") || "Empresa Exemplo LTDA",
-    cnpj: searchParams.get("cnpj") || "12.345.678/0001-90",
-    endereco: searchParams.get("endereco") || "Rua Exemplo, 123",
-    bairro: searchParams.get("bairro") || "Centro",
-    cidade: searchParams.get("cidade") || "Cidade Exemplo",
-    atividade: searchParams.get("atividade") || "Undefined",
-    nomeFantasia: searchParams.get("nomeFantasia") || "Undefined",
-    tipoVisita: searchParams.get("tipoVisita") || "Undefined",
-    estado: searchParams.get("estado") || "UF",
-    inscricaoEstadual: searchParams.get("inscricaoEstadual") || "000000000000",
-    cep: searchParams.get("cep") || "12345-678",
-    ocorrencias: searchParams.get("ocorrencias") || "nada",
-    tipoInfracao: searchParams.get("tipoInfracao") || "Fiscalização Regular",
-    descricaoInfracao:
-      searchParams.get("descricaoInfracao") ||
-      "Descrição detalhada da visita realizada...",
-    baseLegal:
-      searchParams.get("baseLegal") ||
-      "Observações adicionais sobre a visita...",
+    if (res.success === false) {
+      return alert("Erro ao gerar o pdf");
+    } else {
+      updateRelatorio({
+        id: id,
+        data: { responsavel, fiscais, pdfUrl: res.path || "" },
+      });
+      toast.success("Documento gerado e salvo com sucesso");
+      router.push("/");
+    }
   };
-
   const [step, setStep] = useState(1);
-  const [responsavelNome, setResponsavelNome] = useState("sdfsd");
-  const [responsavelCargo, setResponsavelCargo] = useState("sdfsfsdf");
-  const [responsavelCpf, setResponsavelCpf] = useState("sdfsfsdf");
+  const [responsavelNome, setResponsavelNome] = useState("");
+  const [responsavelCargo, setResponsavelCargo] = useState("");
+  const [responsavelCpf, setResponsavelCpf] = useState("");
   const [responsavelSignature, setResponsavelSignature] = useState("");
 
   // Array de fiscais
   const [fiscais, setFiscais] = useState<Fiscal[]>([
     { nome: "", matricula: "", assinatura: "" },
   ]);
-
 
   // Função para adicionar um novo fiscal
   const adicionarFiscal = () => {
@@ -144,13 +147,6 @@ export default function InfracaoSignature() {
       fiscal.matricula.trim() !== "" &&
       fiscal.assinatura !== ""
   );
-
-  const completeFormData = {
-    ...formData,
-    responsavelNome,
-    responsavelCargo,
-    fiscais,
-  };
 
   return (
     <div className="container mx-auto py-6">
@@ -343,7 +339,7 @@ export default function InfracaoSignature() {
               disabled={!fiscaisCompletos}
               className="flex items-center gap-1"
             >
-              Baixar documento <ArrowRight className="h-4 w-4" />
+              Salvar Documento <ArrowRight className="h-4 w-4" />
             </Button>
           </CardFooter>
         </Card>

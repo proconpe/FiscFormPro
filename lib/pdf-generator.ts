@@ -144,8 +144,9 @@ export const generatePDF = async (data: RelatorioDeVisita) => {
 
   addSplitField([
     { title: "CNPJ", value: data.cnpj },
-    { title: "N° DO DOCUMENTO", value: "001/2025" },
-    { title: "N° PROCESSO INTERNO", value: "VIS-001/2025" },
+    { title: "INSCRIÇÃO ESTADUAL", value: data.inscricaoEstadual || "-" },
+    { title: "N° DO DOCUMENTO", value: data.formId},
+    // { title: "N° PROCESSO INTERNO", value: data.documentoId},
   ]);
   // Adicionar campos do formulário na primeira página
   addSplitField([{ title: "RAZÃO SOCIAL", value: data.razaoSocial }]);
@@ -163,9 +164,7 @@ export const generatePDF = async (data: RelatorioDeVisita) => {
     { title: "CEP", value: data.cep },
   ]);
 
-  addSplitField([
-    { title: "INSCRIÇÃO ESTADUAL", value: data.inscricaoEstadual || "-" },
-  ]);
+ 
 
   addSplitField([
     { title: "RESPONSÁVEL (NOME)", value: data.responsavel.nome },

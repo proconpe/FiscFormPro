@@ -1,8 +1,13 @@
 "use server";
-import { assinaturaFiscalSchema, assinaturaResponsavelSchema, RelatorioVisitaSchema } from "@/lib/schemas";
+import {
+  assinaturaFiscalSchema,
+  assinaturaResponsavelSchema,
+  RelatorioVisitaSchema,
+} from "@/lib/schemas";
 import { z } from "zod";
 import prisma from "../../../db/prisma";
 import { formatError } from "@/lib/utils";
+import { RelatorioDeVisita } from "@/@types";
 export async function getRelatorio({ id }: { id: string }) {
   try {
     const data = await prisma.relatorioVisita.findUnique({
@@ -34,35 +39,50 @@ export async function createRelatorio({
 }: {
   data: z.infer<typeof RelatorioVisitaSchema>;
 }) {
-  const year = new Date().getFullYear();
-  const docCount = await prisma..count();
-  const docSequencia = String(docCount + 1).padStart(3, "0");
-  const documentoId = `DOC-${docSequencia}/${year}`;
   try {
-    const document = await prisma.documento.create({
-        data: {
-            sharedId: documentoId,
-            
-        }
-    });
-    const formCount = await prisma.relatorioVisita.count();
-
-    const formSequencia = String(formCount + 1).padStart(3, "0");
-
-    const formId = `VIS-${formSequencia}/${year}`;
-
+    // validação do schema
     RelatorioVisitaSchema.parse(data);
+    const year = new Date().getFullYear();
+    const docCount = await prisma.documento.count();
+    const docSequencia = String(docCount + 1).padStart(3, "0");
+    const documentoId = `DOC-${docSequencia}/${year}`;
 
-    const relatorioVisita = await prisma.relatorioVisita.create({
-      data: {
-        formId: formId,
-        documentoId: documentoId,
-        ...data,
-      },
+    const result = await prisma.$transaction(async (tx) => {
+       await tx.documento.create({
+        data: {
+          sharedId: documentoId,
+        },
+      });
+
+      const formCount = await prisma.relatorioVisita.count();
+      const formSequencia = String(formCount + 1).padStart(3, "0");
+      const formId = `VIS-${formSequencia}/${year}`;
+
+      const relatorioVisita = await tx.relatorioVisita.create({
+        data: {
+          formId: formId,
+          documentoId: documentoId,
+          nomeFantasia: data.nomeFantasia,
+          razaoSocial: data.razaoSocial,
+          atividade: data.atividade,
+          endereco: data.endereco,
+          municipio: data.municipio,
+          estado: data.estado,
+          email: data.email,
+          tipoVisita: data.tipoVisita,
+          inscricaoEstadual: data.inscricaoEstadual,
+          ocorrencias: data.ocorrencias,
+          cep: data.cep,
+          cnpj: data.cnpj,
+        },
+      });
+
+      return relatorioVisita;
     });
+
     return {
         success: true,
-        data: relatorioVisita,
+        data: result,
     }
   } catch (error) {
     return {
@@ -72,7 +92,6 @@ export async function createRelatorio({
   }
 }
 
-
 export default async function updateRelatorio({
   id,
   data,
@@ -81,6 +100,7 @@ export default async function updateRelatorio({
   data: {
     responsavel: z.infer<typeof assinaturaResponsavelSchema>;
     fiscais: z.infer<typeof assinaturaFiscalSchema>[];
+    pdfUrl: string;
   };
 }) {
   try {
@@ -89,9 +109,9 @@ export default async function updateRelatorio({
         id: id,
       },
       data: {
-        responsavel:data.responsavel,
+        responsavel: data.responsavel,
         fiscais: data.fiscais,
-
+        pdfUrl: data.pdfUrl,
       },
     });
     return {

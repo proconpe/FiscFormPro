@@ -7,7 +7,9 @@ export const RelatorioVisitaSchema = z.object({
   razaoSocial: z.string({
     message: " Campo obrigatorio",
   }),
-  email: z.string().email({ message: "Email inválido" }),
+  email: z.string({
+    message: "Email inválido",
+  }).email({ message: "Email inválido" }),
   nomeFantasia: z
     .string({
       message: "Campo obrigatorio",

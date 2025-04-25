@@ -32,7 +32,6 @@ import { RelatorioVisitaSchema } from "@/lib/schemas";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -46,7 +45,9 @@ import { useBuscarCep } from "@/hooks/use-busca-cep";
 import { useTransition } from "react";
 import { createRelatorio } from "@/lib/actions/form/relatorioVisita.actions";
 
-export default function InfracaoForm() {
+
+export default function VisitaForm() {
+  
   const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
   const [isLoading, startTransition] = useTransition();
@@ -54,15 +55,17 @@ export default function InfracaoForm() {
   const form = useForm<z.infer<typeof RelatorioVisitaSchema>>({
     resolver: zodResolver(RelatorioVisitaSchema),
   });
+
   useBuscarCep(form, startTransition);
 
   const onFormSubmit = async (data: z.infer<typeof RelatorioVisitaSchema>) => {
-    const response = await createRelatorio(data);
+    const response = await createRelatorio({ data });
 
-    if (response.success) {
-      router.push(`/forms/visita/signature?id=${response.data?.id}`);
+
+    if (response.success === true) {
+      router.push(`/forms/visita/signature/${response.data?.id}`);
     } else {
-      console.log(response.error);
+      console.log("erro!", response.error);
     }
   };
 
