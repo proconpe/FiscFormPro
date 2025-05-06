@@ -48,8 +48,7 @@ export default function VisitaSignature({
   data: RelatorioVisita;
 }) {
   const router = useRouter();
-
-  console.log(data);
+  const {toast }= useToast();
   const form = useForm<z.infer<typeof assinaturaResponsavelSchema>>({
     resolver: zodResolver(assinaturaResponsavelSchema),
   });
@@ -88,7 +87,11 @@ export default function VisitaSignature({
         id: id,
         data: { responsavel, fiscais, pdfUrl: res.path || "" },
       });
-      toast.success("Documento gerado e salvo com sucesso");
+      toast({
+        title: "Documento gerado e salvo com sucesso",
+        description: "Voce sera redirecionado para a pagina de formulários",
+
+      })
       router.push("/");
     }
   };

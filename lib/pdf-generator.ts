@@ -84,7 +84,7 @@ export const generatePDF = async (data: RelatorioDeVisita) => {
   let currentPage = 1;
 
   // Função para verificar se precisa de nova página
-  const checkNewPage = (heightNeeded:number) => {
+  const checkNewPage = (heightNeeded: number) => {
     if (yPosition + heightNeeded > pageHeight - margin - footerHeight) {
       addFooter();
       pdf.addPage();
@@ -118,7 +118,7 @@ export const generatePDF = async (data: RelatorioDeVisita) => {
   };
 
   // Função para adicionar campo dividido
-  const addSplitField = (fields:{title:string, value:string}[]) => {
+  const addSplitField = (fields: { title: string; value: string }[]) => {
     const totalFields = fields.length;
     const fieldWidth = contentWidth / totalFields;
     const height = 10;
@@ -144,8 +144,8 @@ export const generatePDF = async (data: RelatorioDeVisita) => {
 
   addSplitField([
     { title: "CNPJ", value: data.cnpj },
-    { title: "INSCRIÇÃO ESTADUAL", value: data.inscricaoEstadual || "-" },
-    { title: "N° DO DOCUMENTO", value: data.formId},
+    { title: "N° INTERNO", value: data.documentoId || "-" },
+    { title: "N° DO DOCUMENTO", value: data.formId },
     // { title: "N° PROCESSO INTERNO", value: data.documentoId},
   ]);
   // Adicionar campos do formulário na primeira página
@@ -164,8 +164,6 @@ export const generatePDF = async (data: RelatorioDeVisita) => {
     { title: "CEP", value: data.cep },
   ]);
 
- 
-
   addSplitField([
     { title: "RESPONSÁVEL (NOME)", value: data.responsavel.nome },
   ]);
@@ -175,7 +173,10 @@ export const generatePDF = async (data: RelatorioDeVisita) => {
     pageHeight - margin - footerHeight - yPosition;
 
   // Preparar o texto das ocorrências
+
   pdf.setFontSize(9);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("OCORRÊNCIAS", margin + 2, yPosition + 4);
   const ocorrenciasText = data.ocorrencias || "";
   const ocorrenciasLines = pdf.splitTextToSize(
     ocorrenciasText,
@@ -222,7 +223,7 @@ export const generatePDF = async (data: RelatorioDeVisita) => {
   // Desenhar o título do campo de ocorrências
   pdf.setFontSize(9);
   pdf.setFont("helvetica", "bold");
-  addSplitField([{ title: "OCORRÊNCIAS", value: data.ocorrencias }]);
+
   // Desenhar o retângulo do campo
   pdf.setDrawColor(0, 0, 0);
   pdf.rect(margin, yPosition, contentWidth, ocorrenciasHeight);
@@ -321,7 +322,7 @@ export const generatePDF = async (data: RelatorioDeVisita) => {
 
   pdf.setFontSize(8);
   pdf.setFont("helvetica", "normal");
-  pdf.text("RECEBI A 2ª VIA NESTA DATA", margin + 2, yPosition + 10);
+  pdf.text("RECEBI A COPIA NESTA DATA", margin + 2, yPosition + 10);
   pdf.text(`Nome: ${data.responsavel.nome}`, margin + 2, yPosition + 15);
   pdf.text(`Cargo: ${data.responsavel.cargo}`, margin + 2, yPosition + 20);
   pdf.text(`CPF: ${data.responsavel.cpf}`, margin + 2, yPosition + 25);
@@ -440,21 +441,23 @@ export const generatePDF = async (data: RelatorioDeVisita) => {
 
   // Adicionar rodapé na última página
   addFooter();
-  const pdfBlob = pdf.output('blob')
-  const base64 = await blobToBase64(pdfBlob)
-  const filename = `Relatorio_de_Visita_${data.razaoSocial.replace(/\s+/g, "_")}`
-  
-  const res = await salvarDocumento(base64.split(",")[1], filename, "pdf")
+  const pdfBlob = pdf.output("blob");
+  const base64 = await blobToBase64(pdfBlob);
+  const filename = `Relatorio_de_Visita_${data.razaoSocial.replace(
+    /\s+/g,
+    "_"
+  )}`;
 
-  return res
+  const res = await salvarDocumento(base64.split(",")[1], filename, "pdf");
+
+  return res;
 
   function blobToBase64(blob: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onloadend = () => resolve(reader.result as string)
-      reader.onerror = reject
-      reader.readAsDataURL(blob)
-    })
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
   }
-
 };

@@ -45,9 +45,7 @@ import { useBuscarCep } from "@/hooks/use-busca-cep";
 import { useTransition } from "react";
 import { createRelatorio } from "@/lib/actions/form/relatorioVisita.actions";
 
-
 export default function VisitaForm() {
-  
   const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
   const [isLoading, startTransition] = useTransition();
@@ -60,7 +58,6 @@ export default function VisitaForm() {
 
   const onFormSubmit = async (data: z.infer<typeof RelatorioVisitaSchema>) => {
     const response = await createRelatorio({ data });
-
 
     if (response.success === true) {
       router.push(`/forms/visita/signature/${response.data?.id}`);
@@ -97,41 +94,26 @@ export default function VisitaForm() {
                   Dados do Estabelecimento
                 </h3>
                 <Separator />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="cnpj"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>CNPJ</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(formatCNPJ(e.target.value))
-                            }
-                          />
-                        </FormControl>
 
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="inscricaoEstadual"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Inscrição Estadual</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
+                <FormField
+                  control={form.control}
+                  name="cnpj"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>CNPJ</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(formatCNPJ(e.target.value))
+                          }
+                        />
+                      </FormControl>
 
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
