@@ -7,9 +7,11 @@ export const RelatorioVisitaSchema = z.object({
   razaoSocial: z.string({
     message: " Campo obrigatorio",
   }),
-  email: z.string({
-    message: "Email inválido",
-  }).email({ message: "Email inválido" }),
+  email: z
+    .string({
+      message: "Email inválido",
+    })
+    .email({ message: "Email inválido" }),
   nomeFantasia: z
     .string({
       message: "Campo obrigatorio",
@@ -99,12 +101,16 @@ export const AutoDeNotificaçãoShema = z.object({
   estado: z.string({
     message: "Campo obrigatorio",
   }),
-  telefone: z.string({
-    message: "Telefone e campo obrigatório",
-  }),
-  celular: z.string({
-    message: "Celular e campo obrigatório",
-  }),
+  telefone: z
+    .string({
+      message: "Telefone e campo obrigatório",
+    })
+    .optional(),
+  celular: z
+    .string({
+      message: "Celular e campo obrigatório",
+    })
+    .optional(),
   email: z
     .string({
       message: "Email e campo obrigatório",
@@ -173,6 +179,14 @@ export const AutoDeConstataçãoSchema = z.object({
     .refine((cnpj) => isValidCNPJ(cnpj), {
       message: "Cnpj invalido",
     }),
+  email: z
+    .string({
+      message: "Email e campo obrigatório",
+    })
+    .email({
+      message: "Email inválido",
+    }),
+
   telefone: z
     .string({
       message: "Telefone e campo obrigatório",

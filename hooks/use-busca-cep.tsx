@@ -18,7 +18,7 @@ export function useBuscarCep<T extends FieldValues>(
           if (response.bairro) {
             form.setValue("endereco" as Path<T>, response.logradouro);
             form.setValue("estado" as Path<T>, response.bairro);
-            form.setValue("minicipio" as Path<T>, response.localidade);
+            form.setValue("municipio" as Path<T>, response.localidade);
             form.setValue("estado" as Path<T>, response.estado);
             form.clearErrors("cep" as Path<T>);
             console.log(response)

@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,34 +27,44 @@ import { FileUploader } from "@/components/file-uploader";
 import { ArrowLeft, Save } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { RelatorioVisitaSchema } from "@/lib/schemas";
+import { AutoDeNotificaçãoShema, RelatorioVisitaSchema } from "@/lib/schemas";
+import { z } from "zod";
+import { formatCNPJ } from "@/lib/masks/cnpj-format";
+import { formatCEP } from "@/lib/masks/cep-format";
+import { useBuscarCep } from "@/hooks/use-busca-cep";
 
 export default function NotificacaoForm() {
   const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
+  const [isLoading, startTransition] = useTransition();
 
   // estancia do form usando o schema criado
-  const form = useForm<z.infer<typeof RelatorioVisitaSchema>>({
-    resolver: zodResolver(RelatorioVisitaSchema),
+  const form = useForm<z.infer<typeof AutoDeNotificaçãoShema>>({
+    resolver: zodResolver(AutoDeNotificaçãoShema),
   });
 
+  useBuscarCep(form, startTransition);
   // Modificar o handleSubmit para redirecionar para a página de assinatura
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = (data: z.infer<typeof AutoDeNotificaçãoShema>) => {
+    console.log(data);
+    // const response = await createRelatorio({ data });
 
-    // Construir query string com os dados do formulário
-    const formData = new FormData(e.target as HTMLFormElement);
-    const queryParams = new URLSearchParams();
-
-    formData.forEach((value, key) => {
-      queryParams.append(key, value.toString());
-    });
-
-    // Redirecionar para a página de assinatura
-    router.push(`/forms/notificacao/signature?${queryParams.toString()}`);
+    // if (response.success === true) {
+    //   router.push(`/forms/visita/signature/${response.data?.id}`);
+    // } else {
+    //   console.log("erro!", response.error);
+    // }
   };
 
   return (
@@ -67,6 +77,7 @@ export default function NotificacaoForm() {
         <ArrowLeft className="h-4 w-4" /> Voltar
       </Button>
 
+      
       <Card className="max-w-4xl mx-auto">
         <CardHeader>
           <CardTitle>Notificação</CardTitle>
@@ -83,152 +94,208 @@ export default function NotificacaoForm() {
                 </h3>
                 <Separator />
 
+                <FormField
+                  control={form.control}
+                  name="cnpj"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>CNPJ</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(formatCNPJ(e.target.value))
+                          }
+                        />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name="username"
+                    name="razaoSocial"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Username</FormLabel>
+                        <FormLabel>Razão Social</FormLabel>
                         <FormControl>
-                          <Input placeholder="shadcn" {...field} />
+                          <Input {...field} />
                         </FormControl>
-                        <FormDescription>
-                          This is your public display name.
-                        </FormDescription>
+
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <div className="space-y-2">
-                    <Label htmlFor="cnpj">CNPJ</Label>
-                    <Input id="cnpj" required />
-                  </div>
-                </div>
+                  <FormField
+                    control={form.control}
+                    name="nomeFantasia"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nome Fantasia</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="endereco">Endereço</Label>
-                    <Input id="endereco" required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="bairro">Bairro</Label>
-                    <Input id="bairro" required />
-                  </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
+                <FormField
+                  control={form.control}
+                  name="atividade"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Atividade</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="cidade">Cidade</Label>
-                    <Input id="cidade" required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="estado">Estado</Label>
-                    <Input id="estado" required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cep">CEP</Label>
-                    <Input id="cep" required />
-                  </div>
-                </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="atividade"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Telefone</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="responsavel">Responsável</Label>
-                    <Input id="responsavel" required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cargo">Cargo</Label>
-                    <Input id="cargo" required />
-                  </div>
-                </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="celular"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Celular</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="cep"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cep</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(formatCEP(e.target.value))
+                          }
+                        />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="municipio"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Municipio</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="estado"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Estado</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="endereco"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Endereço</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Dados da Notificação</h3>
                 <Separator />
 
-                <div className="space-y-2">
-                  <Label htmlFor="tipoNotificacao">Tipo de Notificação</Label>
-                  <Select required>
-                    <SelectTrigger id="tipoNotificacao">
-                      <SelectValue placeholder="Selecione o tipo de notificação" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="solicitacao-documentos">
-                        Solicitação de Documentos
-                      </SelectItem>
-                      <SelectItem value="correcao-irregularidades">
-                        Correção de Irregularidades
-                      </SelectItem>
-                      <SelectItem value="comparecimento">
-                        Comparecimento ao PROCON
-                      </SelectItem>
-                      <SelectItem value="esclarecimentos">
-                        Prestação de Esclarecimentos
-                      </SelectItem>
-                      <SelectItem value="outros">Outros</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <FormField
+                  control={form.control}
+                  name="dispositivosLegaisInfrigidos"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Dispositivos Legals Infrigados</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
 
-                <div className="space-y-2">
-                  <Label htmlFor="motivoNotificacao">
-                    Motivo da Notificação
-                  </Label>
-                  <Textarea
-                    id="motivoNotificacao"
-                    placeholder="Descreva o motivo da notificação..."
-                    className="min-h-[100px]"
-                    required
-                  />
-                </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                <div className="space-y-2">
-                  <Label>Itens Solicitados</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="item1" />
-                      <Label htmlFor="item1">Contrato Social</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="item2" />
-                      <Label htmlFor="item2">CNPJ</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="item3" />
-                      <Label htmlFor="item3">Alvará de Funcionamento</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="item4" />
-                      <Label htmlFor="item4">Notas Fiscais</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="item5" />
-                      <Label htmlFor="item5">Contratos com Consumidores</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="item6" />
-                      <Label htmlFor="item6">Comprovantes de Entrega</Label>
-                    </div>
-                  </div>
-                </div>
+                <FormField
+                  control={form.control}
+                  name="ocorrencias"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Ocorrencias</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} />
+                      </FormControl>
 
-                <div className="space-y-2">
-                  <Label htmlFor="outrosItens">Outros Itens Solicitados</Label>
-                  <Textarea
-                    id="outrosItens"
-                    placeholder="Descreva outros itens solicitados, se houver..."
-                    className="min-h-[80px]"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="prazo">Prazo para Atendimento (dias)</Label>
-                    <Input id="prazo" type="number" min="1" required />
-                  </div>
-                </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               <div className="space-y-4">
