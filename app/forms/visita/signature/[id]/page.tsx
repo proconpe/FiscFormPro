@@ -3,7 +3,8 @@
 import { getRelatorio } from "@/lib/actions/form/relatorioVisita.actions";
 import { notFound } from "next/navigation";
 import VisitaSignature from "../components/assinatura";
-import { RelatorioVisita } from "@prisma/client";
+import { RelatorioDeVisita } from "@/@types";
+
 
 export default async function Signature({
   params,
@@ -14,7 +15,7 @@ export default async function Signature({
 
   const response = await getRelatorio({ id: id });
   
-  const data = response.data as RelatorioVisita;
+  const data = response.data as RelatorioDeVisita;
 
   if (response.success === false) {
     return notFound();
