@@ -57,14 +57,15 @@ export default function NotificacaoForm() {
   useBuscarCep(form, startTransition);
   // Modificar o handleSubmit para redirecionar para a página de assinatura
   const onSubmit = (data: z.infer<typeof AutoDeNotificaçãoShema>) => {
-    console.log(data);
-    // const response = await createRelatorio({ data });
+    // startTransition(async () => {
+    //   const response = await createRelatorio({ data });
 
-    // if (response.success === true) {
-    //   router.push(`/forms/visita/signature/${response.data?.id}`);
-    // } else {
-    //   console.log("erro!", response.error);
-    // }
+    //   if (response.success === true) {
+    //     router.push(`/forms/visita/signature/${response.data?.id}`);
+    //   } else {
+    //     console.log("erro!", response.error);
+    //   }
+    // })
   };
 
   return (
@@ -73,11 +74,11 @@ export default function NotificacaoForm() {
         variant="ghost"
         className="mb-4 flex items-center gap-1"
         onClick={() => router.push("/")}
-      >
+      > 
         <ArrowLeft className="h-4 w-4" /> Voltar
       </Button>
 
-      
+
       <Card className="max-w-4xl mx-auto">
         <CardHeader>
           <CardTitle>Notificação</CardTitle>

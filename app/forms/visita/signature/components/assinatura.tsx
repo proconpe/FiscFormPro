@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,14 +29,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
   assinaturaResponsavelSchema,
-  RelatorioVisitaSchema,
 } from "@/lib/schemas";
-import { generatePDF } from "@/lib/pdf-generator";
+import { generatePDF } from "@/lib/visita_pdf_generator";
 import { Fiscal } from "@/@types";
 import updateRelatorio from "@/lib/actions/form/relatorioVisita.actions";
 import { RelatorioVisita } from "@prisma/client";
 import { useToast } from "@/hooks/use-toast";
-import { toast } from "sonner";
 
 // Interface para os dados do fiscal
 
@@ -48,6 +46,7 @@ export default function VisitaSignature({
   data: RelatorioVisita;
 }) {
   const router = useRouter();
+  const [isLoading,startTransition] = useTransition();
   const {toast }= useToast();
   const form = useForm<z.infer<typeof assinaturaResponsavelSchema>>({
     resolver: zodResolver(assinaturaResponsavelSchema),
@@ -83,10 +82,13 @@ export default function VisitaSignature({
     if (res.success === false) {
       return alert("Erro ao gerar o pdf");
     } else {
-      updateRelatorio({
-        id: id,
-        data: { responsavel, fiscais, pdfUrl: res.path || "" },
-      });
+      startTransition(async ()=>{
+        const response = await updateRelatorio({
+          id: id,
+          data: { responsavel, fiscais, pdfUrl: res.path || "" },
+        });
+
+      })
       toast({
         title: "Documento gerado e salvo com sucesso",
         description: "Voce sera redirecionado para a pagina de formulários",
@@ -339,8 +341,9 @@ export default function VisitaSignature({
             </Button>
             <Button
               onClick={gerarPdf}
-              disabled={!fiscaisCompletos}
+              disabled={!fiscaisCompletos || isLoading}
               className="flex items-center gap-1"
+              
             >
               Salvar Documento <ArrowRight className="h-4 w-4" />
             </Button>

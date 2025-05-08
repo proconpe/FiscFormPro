@@ -2,14 +2,16 @@
 import {
   assinaturaFiscalSchema,
   assinaturaResponsavelSchema,
-  RelatorioVisitaSchema,
+  AutoDeNotificaçãoShema,
 } from "@/lib/schemas";
 import { z } from "zod";
 import prisma from "../../../db/prisma";
 import { formatError } from "@/lib/utils";
-export async function getRelatorio({ id }: { id: string }) {
+
+
+export async function getNotificacao({ id }: { id: string }) {
   try {
-    const data = await prisma.relatorioVisita.findUnique({
+    const data = await prisma.autoDeNotificacao.findUnique({
       where: {
         id: id,
       },
@@ -17,7 +19,7 @@ export async function getRelatorio({ id }: { id: string }) {
     if (!data) {
       return {
         success: false,
-        error: "Relatorio não encontrado",
+        error: "Notificação não encontrada",
       };
     }
 
@@ -33,19 +35,19 @@ export async function getRelatorio({ id }: { id: string }) {
   }
 }
 
-export async function createRelatorio({
+export async function createAuto({
   data,
 }: {
-  data: z.infer<typeof RelatorioVisitaSchema>;
+  data: z.infer<typeof AutoDeNotificaçãoShema>;
 }) {
   try {
     // validação do schema
-    RelatorioVisitaSchema.parse(data);
+    AutoDeNotificaçãoShema.parse(data);
     const year = new Date().getFullYear();
     const docCount = await prisma.documento.count();
     const docSequencia = String(docCount + 1).padStart(3, "0");
     const documentoId = `DOC-${docSequencia}/${year}`;
-
+    // Refatorar essa parte quando tiver tempo 
     const result = await prisma.$transaction(async (tx) => {
        await tx.documento.create({
         data: {
@@ -53,11 +55,11 @@ export async function createRelatorio({
         },
       });
 
-      const formCount = await prisma.relatorioVisita.count();
+      const formCount = await prisma.autoDeNotificacao.count();
       const formSequencia = String(formCount + 1).padStart(3, "0");
-      const formId = `VIS-${formSequencia}/${year}`;
+      const formId = `NOT-${formSequencia}/${year}`;
 
-      const relatorioVisita = await tx.relatorioVisita.create({
+      const autoDeNotificacao = await tx.autoDeNotificacao.create({
         data: {
           formId: formId,
           documentoId: documentoId,
@@ -68,7 +70,8 @@ export async function createRelatorio({
           municipio: data.municipio,
           estado: data.estado,
           email: data.email,
-          tipoVisita: data.tipoVisita,
+          telefone:data.telefone,
+          celular:data.celular,
           inscricaoEstadual: data.inscricaoEstadual,
           ocorrencias: data.ocorrencias,
           cep: data.cep,
@@ -76,7 +79,7 @@ export async function createRelatorio({
         },
       });
 
-      return relatorioVisita;
+      return autoDeNotificacao;
     });
 
     return {
@@ -91,7 +94,7 @@ export async function createRelatorio({
   }
 }
 
-export default async function updateRelatorio({
+export default async function updateAuto({
   id,
   data,
 }: {
@@ -103,7 +106,7 @@ export default async function updateRelatorio({
   };
 }) {
   try {
-    const relatorioVisita = await prisma.relatorioVisita.update({
+    const  autoNotificacao = await prisma.autoDeNotificacao.update({
       where: {
         id: id,
       },
@@ -115,7 +118,7 @@ export default async function updateRelatorio({
     });
     return {
       success: true,
-      data: relatorioVisita,
+      data: autoNotificacao,
     };
   } catch (error) {
     return {

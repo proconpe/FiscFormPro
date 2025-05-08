@@ -57,13 +57,16 @@ export default function VisitaForm() {
   useBuscarCep(form, startTransition);
 
   const onFormSubmit = async (data: z.infer<typeof RelatorioVisitaSchema>) => {
-    const response = await createRelatorio({ data });
+    startTransition(async () => {
+      const response = await createRelatorio({ data });
 
-    if (response.success === true) {
-      router.push(`/forms/visita/signature/${response.data?.id}`);
-    } else {
-      console.log("erro!", response.error);
-    }
+      if (response.success === true) {
+        router.push(`/forms/visita/signature/${response.data?.id}`);
+      } else {
+        console.log("erro!", response.error);
+      }
+    })
+
   };
 
   return (
@@ -320,7 +323,7 @@ export default function VisitaForm() {
               >
                 Cancelar
               </Button>
-              <Button type="submit" className="flex items-center gap-1">
+              <Button type="submit" disabled={isLoading} className="flex items-center gap-1">
                 <Save className="h-4 w-4" /> Prosseguir para Assinatura
               </Button>
             </CardFooter>
